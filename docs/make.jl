@@ -3,8 +3,12 @@ using Documenter
 
 DocMeta.setdocmeta!(MCP2221Driver, :DocTestSetup, :(using MCP2221Driver); recursive=true)
 
+LOWLEVEL_PAGES = ["lowlevel/index.md", "lowlevel/tutorial.md", "lowlevel/reference.md", "lowlevel/internal.md"]
+
 makedocs(;
     modules=[MCP2221Driver],
+    warnonly=true,
+    linkcheck=true,
     authors="Hugo Levy-Falk <hugo@klafyvel.me> and contributors",
     sitename="MCP2221Driver.jl",
     format=Documenter.HTML(;
@@ -14,6 +18,7 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Low-Level API" => LOWLEVEL_PAGES,
     ],
 )
 

@@ -3,13 +3,26 @@ uuid = "815728f3-0648-4f1d-b2bf-50ce5daff3a8"
 authors = ["Hugo Levy-Falk <hugo@klafyvel.me> and contributors"]
 version = "0.1.0"
 
+[deps]
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
+HidApi = "39e74766-396e-420b-955c-dcb1d9319e05"
+
 [compat]
+AbstractTrees = "0.4"
+Aqua = "0.8"
+DocStringExtensions = "0.9.3"
+HidApi = "1.3.0"
+InteractiveUtils = "1.11"
+JET = "0.9"
+Test = "1.11"
 julia = "1.10"
 
 [extras]
+AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "JET", "Test"]
+test = ["Aqua", "JET", "Test", "AbstractTrees", "InteractiveUtils"]

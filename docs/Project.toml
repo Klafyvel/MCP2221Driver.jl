@@ -1,3 +1,8 @@
 [deps]
+AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+HidApi = "39e74766-396e-420b-955c-dcb1d9319e05"
+InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 MCP2221Driver = "815728f3-0648-4f1d-b2bf-50ce5daff3a8"
+Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
+PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
