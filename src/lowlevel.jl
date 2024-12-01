@@ -58,7 +58,7 @@ function asarray(command)
     v[1] = commandcode(command)
     v[2] = subcommandcode(command)
     initarray!(command, v)
-    v
+    return v
 end
 
 """
@@ -66,13 +66,13 @@ end
 Blocking call to the device to send the command and receive the response if one 
 is expected.
 """
-function query(dev, command::T) where {T<:AbstractCommand}
+function query(dev, command::T) where {T <: AbstractCommand}
     hidcommand = asarray(command)
     write(dev, hidcommand)
     if expectsresponse(T)
         R = responsetype(T)
         return R(read(dev, HID_MESSAGE_LENGTH))
-    else 
+    else
         return nothing
     end
 end
@@ -288,7 +288,7 @@ Reference voltage for DAC.
 - `SourceReferenceVRM`: reference voltage is VRM
 - `SourceReferenceVDD`: reference voltage is VDD
 """
-@enum SourceReferenceOption::UInt8 SourceReferenceVDD=0x00 SourceReferenceVRM =0x01
+@enum SourceReferenceOption::UInt8 SourceReferenceVDD = 0x00 SourceReferenceVRM = 0x01
 """
 Clock output duty cycle for GP1.
 """
@@ -450,7 +450,7 @@ struct StringResponse <: AbstractResponse
 end
 function StringResponse(v::Vector{UInt8})
     l = (v[3] - 2)
-    s = map(zip(v[5:2:(5+l)], v[6:2:(6+l)])) do (l, h)
+    s = map(zip(v[5:2:(5 + l)], v[6:2:(6 + l)])) do (l, h)
         Char(UInt16(h) << 8 | l)
     end |> String
     return StringResponse(ResponseStatus(v[2]), s)
@@ -472,7 +472,7 @@ struct ReadFlashDataChipFactorySerialNumberResponse <: AbstractResponse
     number::Vector{UInt8}
     function ReadFlashDataChipFactorySerialNumberResponse(v::Vector{UInt8})
         l = v[3]
-        return new(ResponseStatus(v[2]), v[5:(5+l)])
+        return new(ResponseStatus(v[2]), v[5:(5 + l)])
     end
 end
 responsetype(::Type{ReadFlashDataChipFactorySerialNumberCommand}) = ReadFlashDataChipFactorySerialNumberResponse
@@ -564,7 +564,7 @@ function initarray!(c::WriteFlashDataChipSettingsCommand, v)
     v[11] = c.usbpowerattributes
     v[12] = c.usbrequestednumberofma
     for (i, b) in enumerate(ByteStringIterator{1}(c.password, false))
-        v[12+i] = b
+        v[12 + i] = b
     end
     return
 end
@@ -636,7 +636,7 @@ function initarray!(command::WriteFlashStringCommand, v)
     v[3] = 2 + 2 * l
     v[4] = 0x03 # Required by the datasheet.
     for (i, b) in enumerate(ByteStringIterator{2}(command.string, true))
-        v[4+i] = b
+        v[4 + i] = b
     end
     return
 end
@@ -677,7 +677,7 @@ struct SendFlashAccessPasswordCommand <: AbstractCommand
 end
 function initarray!(command::SendFlashAccessPasswordCommand, v)
     for (i, b) in enumerate(ByteStringIterator{1}(command.password, false))
-        v[2+i] = b
+        v[2 + i] = b
     end
     return
 end
@@ -749,13 +749,13 @@ struct I2CWriteDataCommand <: AbstractCommand
 end
 
 commandcode(c::I2CWriteDataCommand) =
-    if c.writemode == I2CSingle
-        0x90
-    elseif c.writemode == I2CRepeatedStart
-        0x92
-    else
-        0x94
-    end
+if c.writemode == I2CSingle
+    0x90
+elseif c.writemode == I2CRepeatedStart
+    0x92
+else
+    0x94
+end
 
 responsetype(::Type{I2CWriteDataCommand}) = GenericResponse
 function initarray!(command::I2CWriteDataCommand, v)
@@ -763,7 +763,7 @@ function initarray!(command::I2CWriteDataCommand, v)
     v[2] = UInt8(l & 0xff)
     v[3] = UInt8((l >> 0x08) & 0xff)
     v[4] = writeaddress(command.address)
-    v[5:(5+l)] = command.data
+    v[5:(5 + l)] = command.data
     return
 end
 
@@ -795,11 +795,11 @@ struct I2CReadDataCommand <: AbstractCommand
 end
 responsetype(::Type{I2CReadDataCommand}) = GenericResponse
 commandcode(c::I2CReadDataCommand) =
-    if c.readmode == I2CSingle
-        0x91
-    else
-        0x93
-    end
+if c.readmode == I2CSingle
+    0x91
+else
+    0x93
+end
 function initarray!(command::I2CReadDataCommand, v)
     l = command.length
     v[2] = UInt8(l & 0xff)
@@ -831,7 +831,7 @@ responsetype(::Type{GetI2CDataCommand}) = GetI2CDataResponse
 function GetI2CDataResponse(v::Vector{UInt8})
     l = v[4]
     if 0 < l ≤ 60
-        return GetI2CDataResponse(ResponseStatus(v[2]), v[5:(5+l-1)])
+        return GetI2CDataResponse(ResponseStatus(v[2]), v[5:(5 + l - 1)])
     else
         return GetI2CDataResponse(ResponseStatus(v[2]), [])
     end
@@ -848,31 +848,31 @@ $(TYPEDFIELDS)
 """
 struct SetGPIOOutputValuesCommand <: AbstractCommand
     "GP0 output value, set to `nothing` to leave unchanged."
-    gp0outputvalue::Union{Nothing,Bool}
+    gp0outputvalue::Union{Nothing, Bool}
     """GP0 pin direction, set to `nothing` to leave unchanged, `false` for 
     output, `true` for input."""
-    gp0pindirection::Union{Nothing,Bool}
+    gp0pindirection::Union{Nothing, Bool}
     "GP1 output value, set to `nothing` to leave unchanged."
-    gp1outputvalue::Union{Nothing,Bool}
+    gp1outputvalue::Union{Nothing, Bool}
     """GP1 pin direction, set to `nothing` to leave unchanged, `false` for 
     output, `true` for input."""
-    gp1pindirection::Union{Nothing,Bool}
+    gp1pindirection::Union{Nothing, Bool}
     "GP2 output value, set to `nothing` to leave unchanged."
-    gp2outputvalue::Union{Nothing,Bool}
+    gp2outputvalue::Union{Nothing, Bool}
     """GP2 pin direction, set to `nothing` to leave unchanged, `false` for 
     output, `true` for input."""
-    gp2pindirection::Union{Nothing,Bool}
+    gp2pindirection::Union{Nothing, Bool}
     "GP3 output value, set to `nothing` to leave unchanged."
-    gp3outputvalue::Union{Nothing,Bool}
+    gp3outputvalue::Union{Nothing, Bool}
     """GP3 pin direction, set to `nothing` to leave unchanged, `false` for 
     output, `true` for input."""
-    gp3pindirection::Union{Nothing,Bool}
+    gp3pindirection::Union{Nothing, Bool}
 end
 SetGPIOOutputValuesCommand(;
-    gp0outputvalue=nothing, gp0pindirection=nothing,
-    gp1outputvalue=nothing, gp1pindirection=nothing,
-    gp2outputvalue=nothing, gp2pindirection=nothing,
-    gp3outputvalue=nothing, gp3pindirection=nothing
+    gp0outputvalue = nothing, gp0pindirection = nothing,
+    gp1outputvalue = nothing, gp1pindirection = nothing,
+    gp2outputvalue = nothing, gp2pindirection = nothing,
+    gp3outputvalue = nothing, gp3pindirection = nothing
 ) = SetGPIOOutputValuesCommand(
     gp0outputvalue, gp0pindirection,
     gp1outputvalue, gp1pindirection,
@@ -891,12 +891,12 @@ function initarray!(command::SetGPIOOutputValuesCommand, v)
         output = getfield(command, outputname)
         direction = getfield(command, directionname)
         if !isnothing(output)
-            v[4i-1] = 0x01
+            v[4i - 1] = 0x01
             v[4i] = output
         end
         if !isnothing(direction)
-            v[4i+1] = 0x01
-            v[4i+2] = direction
+            v[4i + 1] = 0x01
+            v[4i + 2] = direction
         end
     end
     return
@@ -921,28 +921,28 @@ struct GetGPIOValuesResponse <: AbstractResponse
     "See [`ResponseStatus`](@ref)."
     status::ResponseStatus
     "GP0 logic pin value, or `nothing` if not set for GPIO operations."
-    gp0pinvalue::Union{Nothing,Bool}
+    gp0pinvalue::Union{Nothing, Bool}
     "GP0 pin designation (`false` for output `true` for input), or nothing if not set for GPIO operations."
-    gp0directionvalue::Union{Nothing,Bool}
+    gp0directionvalue::Union{Nothing, Bool}
     "GP1 logic pin value, or `nothing` if not set for GPIO operations."
-    gp1pinvalue::Union{Nothing,Bool}
+    gp1pinvalue::Union{Nothing, Bool}
     "GP1 pin designation (`false` for output `true` for input), or nothing if not set for GPIO operations."
-    gp1directionvalue::Union{Nothing,Bool}
+    gp1directionvalue::Union{Nothing, Bool}
     "GP2 logic pin value, or `nothing` if not set for GPIO operations."
-    gp2pinvalue::Union{Nothing,Bool}
+    gp2pinvalue::Union{Nothing, Bool}
     "GP2 pin designation (`false` for output `true` for input), or nothing if not set for GPIO operations."
-    gp2directionvalue::Union{Nothing,Bool}
+    gp2directionvalue::Union{Nothing, Bool}
     "GP3 logic pin value, or `nothing` if not set for GPIO operations."
-    gp3pinvalue::Union{Nothing,Bool}
+    gp3pinvalue::Union{Nothing, Bool}
     "GP3 pin designation (`false` for output `true` for input), or nothing if not set for GPIO operations."
-    gp3directionvalue::Union{Nothing,Bool}
+    gp3directionvalue::Union{Nothing, Bool}
 end
 nothing_or_bool(v) =
-    if v > 0x01
-        nothing
-    else
-        Bool(v)
-    end
+if v > 0x01
+    nothing
+else
+    Bool(v)
+end
 GetGPIOValuesResponse(v::Vector{UInt8}) = GetGPIOValuesResponse(
     ResponseStatus(v[2]),
     nothing_or_bool(v[3]),
@@ -971,31 +971,31 @@ struct SetSRAMSettingsCommand <: AbstractCommand
     """If the GP pin is enabled for clock output operations, these are the duty 
      cycle and the output frequency. 
     """
-    clockoutputsettings::Union{Nothing,@NamedTuple{duty::ClockOutputDutyCycle, dividervalue::ClockOutputFrequency}}
+    clockoutputsettings::Union{Nothing, @NamedTuple{duty::ClockOutputDutyCycle, dividervalue::ClockOutputFrequency}}
     "DAC settings."
-    dacsettings::Union{Nothing,@NamedTuple{referencevoltage::ReferenceVoltageOption, referenceoption::SourceReferenceOption}}
+    dacsettings::Union{Nothing, @NamedTuple{referencevoltage::ReferenceVoltageOption, referenceoption::SourceReferenceOption}}
     "DAC output value, only the 5 LSB are taken into account."
-    dacoutputvalue::Union{UInt8,Nothing}
+    dacoutputvalue::Union{UInt8, Nothing}
     "ADC settings."
-    adcsettings::Union{Nothing,@NamedTuple{referencevoltage::ReferenceVoltageOption, referenceoption::SourceReferenceOption}}
+    adcsettings::Union{Nothing, @NamedTuple{referencevoltage::ReferenceVoltageOption, referenceoption::SourceReferenceOption}}
     "If set to a boolean value, control wether interrupt detection will trigger on positive edges."
-    interruptdetectionpositiveedge::Union{Bool,Nothing}
+    interruptdetectionpositiveedge::Union{Bool, Nothing}
     "If set to a boolean value, control wether interrupt detection will trigger on negative edges."
-    interruptdetectionnegativeedge::Union{Bool,Nothing}
+    interruptdetectionnegativeedge::Union{Bool, Nothing}
     "If set to `true`, clear the interrupt flag. Default is `false`."
     clearinterrupt::Bool
     "If set, change GPIO settings. For more fine-grained control, see [`SetGPIOOutputValuesCommand`](@ref)."
-    gpiosettings::Union{Nothing,@NamedTuple{gpio0::GPIOStatus, gpio1::GPIOStatus, gpio2::GPIOStatus, gpio3::GPIOStatus}}
+    gpiosettings::Union{Nothing, @NamedTuple{gpio0::GPIOStatus, gpio1::GPIOStatus, gpio2::GPIOStatus, gpio3::GPIOStatus}}
 end
 SetSRAMSettingsCommand(;
-    clockoutputsettings=nothing,
-    dacsettings=nothing,
-    dacoutputvalue=nothing,
-    adcsettings=nothing,
-    interruptdetectionpositiveedge=nothing,
-    interruptdetectionnegativeedge=nothing,
-    clearinterrupt=false,
-    gpiosettings=nothing
+    clockoutputsettings = nothing,
+    dacsettings = nothing,
+    dacoutputvalue = nothing,
+    adcsettings = nothing,
+    interruptdetectionpositiveedge = nothing,
+    interruptdetectionnegativeedge = nothing,
+    clearinterrupt = false,
+    gpiosettings = nothing
 ) = SetSRAMSettingsCommand(
     clockoutputsettings, dacsettings, dacoutputvalue, adcsettings,
     interruptdetectionpositiveedge, interruptdetectionnegativeedge,
@@ -1026,7 +1026,7 @@ function initarray!(c::SetSRAMSettingsCommand, v)
         end
         v[7] = v[7] | c.clearinterrupt
     end
-    if !isnothing(c.gpiosettings)
+    return if !isnothing(c.gpiosettings)
         v[8] = 0x80
         v[9] = c.gpiosettings.gpio0
         v[10] = c.gpiosettings.gpio1
