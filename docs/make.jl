@@ -23,6 +23,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo = "github.com/klafyvel/MCP2221Driver.jl",
+    repo = "github.com/Klafyvel/MCP2221Driver.jl",
     devbranch = "main",
 )

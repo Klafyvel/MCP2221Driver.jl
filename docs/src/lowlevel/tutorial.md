@@ -410,7 +410,7 @@ julia> response = MCP2221Driver.query(device, command)
 MCP2221Driver.GenericResponse(MCP2221Driver.Success)
 ```
 
-The thermometer is available at address `0x48`. `MCP2221Driver.jl` provides the [`I2CAddress`](@ref) abstraction to represent addresses.
+The thermometer is available at address `0x48`. `MCP2221Driver.jl` provides the [`MCP2221Driver.I2CAddress`](@ref) abstraction to represent addresses.
 
 ```julia-repl
 julia> thermometer_address = MCP2221Driver.I2CAddress(0x48)
