@@ -10,7 +10,6 @@ In case of doubts, please refer to the [chip's documentation](https://web.archiv
     tested this tutorial at the time of writing it, I decline all responsibilities
     for what may happen if you follow it. Use at your own risks!
 
-
 ```@contents
 Pages = ["tutorial.md"]
 Depth = 4
@@ -28,11 +27,13 @@ julia> Pkg.add("HidApi")
 HidApi.jl requires initialization before it lets us enumerate devices:
 
 ```julia-repl
-julia> using HidApi, MCP2221Driver
+julia> using MCP2221Driver
 
-julia> init()
+julia> import HidApi
 
-julia> devices = enumerate_devices()
+julia> HidApi.init()
+
+julia> devices = HidApi.enumerate_devices()
 2-element Vector{HidDevice}:
  HidDevice("1-1:1.2", 0x04d8, 0x00dd, "", 0x0100, "", "", 0x0000, 0x0000, 2, Ptr{HidApi.hid_device_} @0x0000000000000000, HidApi.hid_device_info(Ptr{Int8} @0x0000000004cccfa0, 0x04d8, 0x00dd, Ptr{Nothing} @0x0000000000000000, 0x0100, Ptr{Nothing} @0x0000000000000000, Ptr{Nothing} @0x0000000000000000, 0x0000, 0x0000, 2, Ptr{HidApi.hid_device_info} @0x0000000004312c60, HidApi.HID_API_BUS_USB))
 ... Other devices if some are present.
@@ -54,7 +55,7 @@ For this tutorial, I am using a brand new MCP2221A that hasn't been used yet. Th
 
 We can connect using HidApi.jl's `find_device` function.
 ```julia-repl
-julia> device = open(find_device(MCP2221Driver.MCP2221A_DEFAULT_VID, MCP2221Driver.MCP2221A_DEFAULT_PID))
+julia> device = open(HidApi.find_device(MCP2221Driver.MCP2221A_DEFAULT_VID, MCP2221Driver.MCP2221A_DEFAULT_PID))
 Vendor/Product ID : 0x04d8 / 0x00dd
              Path : 1-1:1.2
           Product : MCP2221 USB-I2C/UART Combo
@@ -73,7 +74,7 @@ Vendor/Product ID : 0x04d8 / 0x00dd
         Serial number : 
          Manufacturer : Microchip Technology Inc.
 
-    julia> shutdown()
+    julia> HidApi.shutdown()
     ```
 
 ## Some simple queries
@@ -392,7 +393,68 @@ julia> for y in ys
 
 ## I²C Operations
 
-The MCP2221A is equiped with an I²C module that we can use to talk to other devices. In this section, we will illustrate these capabilities by communication with a TMP117 digital thermometer available at address 0.
+The MCP2221A is equiped with an I²C module that we can use to talk to other devices. In this section, we will illustrate these capabilities by communication with a [TMP117 digital thermometer](https://www.ti.com/lit/ds/symlink/tmp117.pdf?ts=1730725070131&ref_url=https%253A%252F%252Fwww.ti.com%252Fproduct%252FTMP117%253Fbm-verify%253DAAQAAAAJ_____yzbLfw2mc6njZE-XlcqneiOyAsS3sUf6UhCOZ2uaq2HZBkFXttQ40xkekAWZy5ilmi2E4tfYrWXd5PTdp9-zyQrP5rWhASO6gV8QNFOrdOY6IA0pNyVg_Wm4WYP_Xei97S7JQ-8YzsfUspNcabrpc3NlDX6TzKZ9eYJ2L100WSoZVWRnXMCsXslO20pJot8HLGrg7zprd84nDBLCbkC6Kbj4JlEXElkX5kxmm4hTLmsAT65py3xsOj5tHbm7D5S14URIIMx0yvSR1A) available at address `0x48`.
 
+First, we can configure GP2 and GP3 to display the USB configured and USB/I²C traffic inficators respectively.
+```julia-repl
+julia> command = MCP2221Driver.GetSRAMSettingsCommand()
+MCP2221Driver.GetSRAMSettingsCommand()
 
+julia> response = MCP2221Driver.query(device, command)
+MCP2221Driver.GetSRAMSettingsResponse(MCP2221Driver.Success, 0x12, 0x04, false, MCP2221Driver.Unsecured, MCP2221Driver.ClockOutputDuty50, MCP2221Driver.ClockOutput3MHz, MCP2221Driver.Reference2p048, MCP2221Driver.SourceReferenceVRM, 0x00, true, true, MCP2221Driver.Reference1p024, MCP2221Driver.SourceReferenceVDD, 0x04d8, 0x00dd, 0x80, 0x32, "\0\0\0\0\0\0\0\0", MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation), MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation))
 
+julia> command = MCP2221Driver.SetSRAMSettingsCommand(gpiosettings=(gpio0=response.gpio0status, gpio1=response.gpio1status, gpio2=MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation), gpio3=MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation)))
+MCP2221Driver.SetSRAMSettingsCommand(nothing, nothing, nothing, nothing, nothing, nothing, false, (gpio0 = MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0), gpio1 = MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), gpio2 = MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation), gpio3 = MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation)))
+
+julia> response = MCP2221Driver.query(device, command)
+MCP2221Driver.GenericResponse(MCP2221Driver.Success)
+```
+
+The thermometer is available at address `0x48`. `MCP2221Driver.jl` provides the [`I2CAddress`](@ref) abstraction to represent addresses.
+
+```julia-repl
+julia> thermometer_address = MCP2221Driver.I2CAddress(0x48)
+MCP2221Driver.I2CAddress(0x48)
+```
+
+To read values from the thermometer, you can first write a register address to the pointer register, and then generate a `START` condition and send the thermometer address byte and the read bit high to initiate the reading. Fortunately, you do not need to know these details of the I²C protocol to perform this. Using the low-level API, you can proceed as follow.
+
+First, let's read the last temperature measurement from the `Temp_Result` register at register address `00`.  First, we set the pointer register to address `00`: 
+
+```julia-repl
+julia> command = MCP2221Driver.I2CWriteDataCommand(thermometer_address, MCP2221Driver.I2CSingle, [0x00])
+MCP2221Driver.I2CWriteDataCommand(MCP2221Driver.I2CAddress(0x48), MCP2221Driver.I2CSingle, UInt8[0x00])
+
+julia> response = MCP2221Driver.query(device, command)
+MCP2221Driver.GenericResponse(MCP2221Driver.Success)
+
+```
+
+Then, we order the I²C module to read the currently pointed register from the thermometer:
+
+```julia-repl
+julia> command = MCP2221Driver.I2CReadDataCommand(thermometer_address, MCP2221Driver.I2CSingle, 2)
+
+MCP2221Driver.I2CReadDataCommand(MCP2221Driver.I2CAddress(0x48), MCP2221Driver.I2CSingle, 0x0002)
+
+julia> response = MCP2221Driver.query(device, command)
+MCP2221Driver.GenericResponse(MCP2221Driver.Success)
+
+```
+
+Finally, we read the value from the driver's internal memory and convert it to a sensible unit.
+
+```julia-repl
+julia> command = MCP2221Driver.GetI2CDataCommand()
+MCP2221Driver.GetI2CDataCommand()
+
+julia> response = MCP2221Driver.query(device, command)
+MCP2221Driver.GetI2CDataResponse(MCP2221Driver.Success, UInt8[0x0c, 0x9e])
+
+julia> temperature = 7.8125e-3 * ntoh(first(reinterpret(UInt16, response.data)))
+25.234375
+
+julia> println("Temperature is $(temperature)°C.")
+Temperature is 25.234375°C.
+
+```

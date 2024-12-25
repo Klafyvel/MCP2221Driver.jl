@@ -103,7 +103,7 @@ Status flag for a response.
 - `CommandNotSupported`: Command not supported,
 - `COmmandNotAllowed`: Command not allowed.
 """
-@enum ResponseStatus::UInt8 Success = 0x00 I2CBusy = 0x01 CommandNotSupported = 0x02 CommandNotAllowed = 0x03
+@enum ResponseStatus::UInt8 Success = 0x00 I2CBusy = 0x01 CommandNotSupported = 0x02 CommandNotAllowed = 0x03 I2CError = 0x41
 """
 A generic response where only the response status is interesting.
 
@@ -379,7 +379,7 @@ Enum to set the dedicated function of a GP pin.
     | ------ | --------------- | ---------------------------- | -------------------- | -------------------- | -------------------- |
     | GP0    | Available       | SSPND                        | LED_URx              | Not Available        | Not Available        |
     | GP1    | Available       | clock output                 | ADC1                 | LED_UTx              | Interrupt detection  |
-    | GP2    | Available       | clock output                 | ADC2                 | DAC1                 | Not Available        |
+    | GP2    | Available       | USBCFG                       | ADC2                 | DAC1                 | Not Available        |
     | GP3    | Available       | LED_I2C                      | ADC3                 | DAC2                 | Not Available        |
 """
 @enum GPDesignation::UInt8 GPIOOperation = 0x00 DedicatedFunctionOperation = 0x01 AlternateFunction0 = 0x02 AlternateFunction1 = 0x03 AlternateFunction2 = 0x04
@@ -763,7 +763,7 @@ function initarray!(command::I2CWriteDataCommand, v)
     v[2] = UInt8(l & 0xff)
     v[3] = UInt8((l >> 0x08) & 0xff)
     v[4] = writeaddress(command.address)
-    v[5:(5 + l)] = command.data
+    v[5:(5 + l - 1)] = command.data
     return
 end
 
