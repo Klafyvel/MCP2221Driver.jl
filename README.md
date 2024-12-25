@@ -31,7 +31,7 @@ device = open(HidApi.find_device(
 
 # Configuring pins for GPIO operations
 command = MCP2221Driver.GetSRAMSettingsCommand()
-MCP2221Driver.query(device, command)
+response = MCP2221Driver.query(device, command)
 command = MCP2221Driver.SetSRAMSettingsCommand(
     gpiosettings=(
         gpio0=response.gpio0status, 
@@ -54,5 +54,8 @@ for i in 1:60
     MCP2221Driver.query(device, command)
     sleep(1)
 end
+
+close(device)
+HidApi.shutdown()
 
 ```
