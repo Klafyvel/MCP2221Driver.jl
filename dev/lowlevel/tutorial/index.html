@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Low-Level API Tutorial · MCP2221Driver.jl</title><meta name="title" content="Low-Level API Tutorial · MCP2221Driver.jl"/><meta property="og:title" content="Low-Level API Tutorial · MCP2221Driver.jl"/><meta property="twitter:title" content="Low-Level API Tutorial · MCP2221Driver.jl"/><meta name="description" content="Documentation for MCP2221Driver.jl."/><meta property="og:description" content="Documentation for MCP2221Driver.jl."/><meta property="twitter:description" content="Documentation for MCP2221Driver.jl."/><meta property="og:url" content="https://klafyvel.github.io/MCP2221Driver.jl/lowlevel/tutorial/"/><meta property="twitter:url" content="https://klafyvel.github.io/MCP2221Driver.jl/lowlevel/tutorial/"/><link rel="canonical" href="https://klafyvel.github.io/MCP2221Driver.jl/lowlevel/tutorial/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">MCP2221Driver.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Low-Level API</span><ul><li><a class="tocitem" href="../">Low-Level API</a></li><li class="is-active"><a class="tocitem" href>Low-Level API Tutorial</a><ul class="internal"><li><a class="tocitem" href="#Connecting-to-the-hardware"><span>Connecting to the hardware</span></a></li><li><a class="tocitem" href="#Some-simple-queries"><span>Some simple queries</span></a></li><li><a class="tocitem" href="#Chip-settings"><span>Chip settings</span></a></li><li><a class="tocitem" href="#GPIO-Operations"><span>GPIO Operations</span></a></li><li><a class="tocitem" href="#Analog-IO"><span>Analog IO</span></a></li><li><a class="tocitem" href="#IC-Operations"><span>I²C Operations</span></a></li></ul></li><li><a class="tocitem" href="../reference/">Low-Level API Reference</a></li><li><a class="tocitem" href="../internal/">Low-Level API internals</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Low-Level API</a></li><li class="is-active"><a href>Low-Level API Tutorial</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Low-Level API Tutorial</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/Klafyvel/MCP2221Driver.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/Klafyvel/MCP2221Driver.jl/blob/main/docs/src/lowlevel/tutorial.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Low-Level-API-Tutorial"><a class="docs-heading-anchor" href="#Low-Level-API-Tutorial">Low-Level API Tutorial</a><a id="Low-Level-API-Tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#Low-Level-API-Tutorial" title="Permalink"></a></h1><p>This tutorial aims at guiding you through the basic usage of the Low-Level API.  In case of doubts, please refer to the <a href="https://web.archive.org/web/20240501120551/https://ww1.microchip.com/downloads/aemDocuments/documents/APID/ProductDocuments/DataSheets/MCP2221A-Data-Sheet-20005565E.pdf">chip&#39;s documentation</a>. It assumes that you have a MCP2221A device connected through the USB.</p><div class="admonition is-warning"><header class="admonition-header">Follow at your own risks</header><div class="admonition-body"><p>When dealing with hardware components and USB devices, it is possible to  damage your computer or your devices. It is also possible to brick your device (especially if you use the password settings of the MCP2221A). While I have tested this tutorial at the time of writing it, I decline all responsibilities for what may happen if you follow it. Use at your own risks!</p></div></div><ul><li><a href="#Low-Level-API-Tutorial">Low-Level API Tutorial</a></li><li class="no-marker"><ul><li><a href="#Connecting-to-the-hardware">Connecting to the hardware</a></li><li><a href="#Some-simple-queries">Some simple queries</a></li><li><a href="#Chip-settings">Chip settings</a></li><li><a href="#GPIO-Operations">GPIO Operations</a></li><li><a href="#Analog-IO">Analog IO</a></li><li><a href="#IC-Operations">I²C Operations</a></li></ul></li></ul><h2 id="Connecting-to-the-hardware"><a class="docs-heading-anchor" href="#Connecting-to-the-hardware">Connecting to the hardware</a><a id="Connecting-to-the-hardware-1"></a><a class="docs-heading-anchor-permalink" href="#Connecting-to-the-hardware" title="Permalink"></a></h2><p>The Low-Level API expects you to provide a device to which it can talk to. In this tutorial, we are going to use <a href="https://github.com/laborg/HidApi.jl">HidApi.jl</a> to connect to and handle the USB communications to the hardware. You can install it using:</p><pre><code class="language-julia-repl hljs">julia&gt; import Pkg
+julia&gt; Pkg.add(&quot;HidApi&quot;)</code></pre><p>HidApi.jl requires initialization before it lets us enumerate devices:</p><pre><code class="language-julia-repl hljs">julia&gt; using MCP2221Driver
+
+julia&gt; import HidApi
+
+julia&gt; HidApi.init()
+
+julia&gt; devices = HidApi.enumerate_devices()
+2-element Vector{HidDevice}:
+ HidDevice(&quot;1-1:1.2&quot;, 0x04d8, 0x00dd, &quot;&quot;, 0x0100, &quot;&quot;, &quot;&quot;, 0x0000, 0x0000, 2, Ptr{HidApi.hid_device_} @0x0000000000000000, HidApi.hid_device_info(Ptr{Int8} @0x0000000004cccfa0, 0x04d8, 0x00dd, Ptr{Nothing} @0x0000000000000000, 0x0100, Ptr{Nothing} @0x0000000000000000, Ptr{Nothing} @0x0000000000000000, 0x0000, 0x0000, 2, Ptr{HidApi.hid_device_info} @0x0000000004312c60, HidApi.HID_API_BUS_USB))
+... Other devices if some are present.</code></pre><p>For this tutorial, I am using a brand new MCP2221A that hasn&#39;t been used yet. The chip&#39;s documentation gives the default Vendor ID (<code>0x04D8</code>) and Product ID (<code>0x00DD</code>). They can also be found in <a href="../reference/#MCP2221Driver.MCP2221A_DEFAULT_VID"><code>MCP2221Driver.MCP2221A_DEFAULT_VID</code></a> and <a href="../reference/#MCP2221Driver.MCP2221A_DEFAULT_PID"><code>MCP2221Driver.MCP2221A_DEFAULT_PID</code></a>. </p><div class="admonition is-info"><header class="admonition-header">Linux users and permissions</header><div class="admonition-body"><p>At this point, Linux users may not be able to connect to their device. You can fix this by creating a <a href="https://wiki.archlinux.org/title/Udev">udev rule</a> for our MCP2221A chip. For example, the following rule (to be added in file <code>/etc/udev/rules.d/50-mcp2221a-tutorial.rules</code>) will allow you to connect to the chip:</p><pre><code class="language-udev hljs">SUBSYSTEM==&quot;usb&quot;, ATTR{idVendor}==&quot;04d8&quot;, ATTR{idProduct}==&quot;00dd&quot;, MODE:=&quot;0666&quot;</code></pre><p>Then, you can reload udev rules and trigger them with </p><pre><code class="language-bash hljs">sudo udevadm control --reload-rules
+sudo udevadm trigger</code></pre><p>Be aware that you will need to repeat the operation later-on if you change the Vendor ID or Product ID of the chip. </p></div></div><p>We can connect using HidApi.jl&#39;s <code>find_device</code> function.</p><pre><code class="language-julia-repl hljs">julia&gt; device = open(HidApi.find_device(MCP2221Driver.MCP2221A_DEFAULT_VID, MCP2221Driver.MCP2221A_DEFAULT_PID))
+Vendor/Product ID : 0x04d8 / 0x00dd
+             Path : 1-1:1.2
+          Product : MCP2221 USB-I2C/UART Combo
+    Serial number : 
+     Manufacturer : Microchip Technology Inc.
+</code></pre><div class="admonition is-info"><header class="admonition-header">Leaving properly</header><div class="admonition-body"><p>Remember to close the device and HidApi.jl when you leave the REPL to avoid running into problems!</p><pre><code class="language-julia-repl hljs">julia&gt; close(device)
+Vendor/Product ID : 0x04d8 / 0x00dd
+             Path : 1-1:1.2
+          Product : MCP2221 USB-I2C/UART Combo
+    Serial number : 
+     Manufacturer : Microchip Technology Inc.
+
+julia&gt; HidApi.shutdown()</code></pre></div></div><h2 id="Some-simple-queries"><a class="docs-heading-anchor" href="#Some-simple-queries">Some simple queries</a><a id="Some-simple-queries-1"></a><a class="docs-heading-anchor-permalink" href="#Some-simple-queries" title="Permalink"></a></h2><p>At this stage, you should have your device loaded in the REPL and open. We can start by querying the current state of the chip. To do so, we use the <a href="../reference/#MCP2221Driver.StatusSetParametersCommand"><code>MCP2221Driver.StatusSetParametersCommand</code></a> command:</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.StatusSetParametersCommand(false, 0x00)
+MCP2221Driver.StatusSetParametersCommand(false, 0)
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.StatusSetParametersResponse(MCP2221Driver.Success, MCP2221Driver.NoSpecialOperation, MCP2221Driver.NoSetSpeed, 0x00, 0x0000, 0x0000, 0x00, 0x00, 0x00, 0x0000, false, 0x01, 0x01, false, 0x00, v&quot;65.54.0&quot;, v&quot;49.50.0&quot;, 0x03ff, 0x0000, 0x0300)</code></pre><p>The chip gives us a set of its current parameters. Refer to <a href="../reference/#MCP2221Driver.StatusSetParametersResponse"><code>MCP2221Driver.StatusSetParametersResponse</code></a>&#39;s documentation to get their meaning. For example, one can see that my chip uses the following hardware and firmware versions:</p><pre><code class="language-julia-repl hljs">julia&gt; response.hardwareversion
+v&quot;65.54.0&quot;
+
+julia&gt; response.firmwareversion
+v&quot;49.50.0&quot;</code></pre><p>Refer to the <a href="../reference/#Low-Level-API-Reference">Low-Level API Reference</a> to get a list of available commands. For example, we can query the current state of the GPIO pins:</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.GetGPIOValuesCommand()
+MCP2221Driver.GetGPIOValuesCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GetGPIOValuesResponse(MCP2221Driver.Success, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing)</code></pre><p><a href="../reference/#MCP2221Driver.GetGPIOValuesResponse"><code>MCP2221Driver.GetGPIOValuesResponse</code></a> tells us that all these <code>nothing</code> means that none of the GPIO pin is configured to be used as a GPIO. Indeed, if we query the current SRAM settings, we get:</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.GetSRAMSettingsCommand()
+MCP2221Driver.GetSRAMSettingsCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GetSRAMSettingsResponse(MCP2221Driver.Success, 0x12, 0x04, false, MCP2221Driver.Unsecured, MCP2221Driver.ClockOutputDuty50, MCP2221Driver.ClockOutput12MHz, MCP2221Driver.Reference2p048, MCP2221Driver.SourceReferenceVDD, 0x08, true, true, MCP2221Driver.Reference1p024, MCP2221Driver.SourceReferenceVDD, 0x04d8, 0x00dd, 0x80, 0x32, &quot;\0\0\0\0\0\0\0\0&quot;, MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation))
+
+julia&gt; response.gpio0status
+MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0)
+
+julia&gt; response.gpio1status
+MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1)
+
+julia&gt; response.gpio2status
+MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation)
+
+julia&gt; response.gpio3status
+MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation)
+</code></pre><p>All GPIO pins are dedicated to functions other than GPIO operations. See <a href="../reference/#MCP2221Driver.GPDesignation"><code>MCP2221Driver.GPDesignation</code></a> for the meaning of these.</p><h2 id="Chip-settings"><a class="docs-heading-anchor" href="#Chip-settings">Chip settings</a><a id="Chip-settings-1"></a><a class="docs-heading-anchor-permalink" href="#Chip-settings" title="Permalink"></a></h2><p>We have already used <a href="../reference/#MCP2221Driver.GetSRAMSettingsCommand"><code>MCP2221Driver.GetSRAMSettingsCommand</code></a> to query the currently loaded settings. At boot, the MCP2221A loads the settings present in flash memory to SRAM. We can confirm that both flash settings and SRAM settings match. Note that flash memory settings are separated in several commands, see the <a href="../reference/#Flash-Memory-Manipulation">Flash Memory Manipulation</a> section of the <a href="../reference/#Low-Level-API-Reference">Low-Level API Reference</a> for a list.</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.ReadFlashDataChipSettingsCommand()
+MCP2221Driver.ReadFlashDataChipSettingsCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.ReadFlashDataChipSettingsResponse(MCP2221Driver.Success, false, MCP2221Driver.Unsecured, MCP2221Driver.ClockOutputDuty50, MCP2221Driver.ClockOutput12MHz, MCP2221Driver.Reference2p048, MCP2221Driver.SourceReferenceVDD, 0x08, true, true, MCP2221Driver.Reference4p096, MCP2221Driver.SourceReferenceVDD, 0x04d8, 0x00dd, 0x80, 0x32)
+</code></pre><p>For example, the current clock output setting is set for 12 MHz output:</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.GetSRAMSettingsCommand()
+MCP2221Driver.GetSRAMSettingsCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command);
+
+julia&gt; response.clockoutputdividervalue
+ClockOutput12MHz::ClockOutputFrequency = 0x02</code></pre><p>We can change that using <a href="../reference/#MCP2221Driver.SetSRAMSettingsCommand"><code>MCP2221Driver.SetSRAMSettingsCommand</code></a>:</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.SetSRAMSettingsCommand(clockoutputsettings=(duty=MCP2221Driver.ClockOutputDuty50, dividervalue=MCP2221Driver.ClockOutput3MHz))
+MCP2221Driver.SetSRAMSettingsCommand((duty = MCP2221Driver.ClockOutputDuty50, dividervalue = MCP2221Driver.ClockOutput3MHz), nothing, nothing, nothing, nothing, nothing, false, nothing)
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GenericResponse(MCP2221Driver.Success)
+</code></pre><p>We can check that the clock output frequency has indeed been modified:</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.GetSRAMSettingsCommand()
+MCP2221Driver.GetSRAMSettingsCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command);
+
+julia&gt; response.clockoutputdividervalue
+ClockOutput3MHz::ClockOutputFrequency = 0x04
+</code></pre><p>However, if you power-down your device, this modification gets erased:</p><pre><code class="language-julia-repl hljs">julia&gt; close(device)
+Vendor/Product ID : 0x04d8 / 0x00dd
+             Path : 1-1:1.2
+          Product : MCP2221 USB-I2C/UART Combo
+    Serial number : 
+     Manufacturer : Microchip Technology Inc.
+
+# Here, un-plug then re-plug the USB
+
+julia&gt; device = open(find_device(MCP2221Driver.MCP2221A_DEFAULT_VID, MCP2221Driver.MCP2221A_DEFAULT_PID))
+Vendor/Product ID : 0x04d8 / 0x00dd
+             Path : 1-1:1.2
+          Product : MCP2221 USB-I2C/UART Combo
+    Serial number : 
+     Manufacturer : Microchip Technology Inc.
+
+julia&gt; command = MCP2221Driver.GetSRAMSettingsCommand()
+MCP2221Driver.GetSRAMSettingsCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GetSRAMSettingsResponse(MCP2221Driver.Success, 0x12, 0x04, false, MCP2221Driver.Unsecured, MCP2221Driver.ClockOutputDuty50, MCP2221Driver.ClockOutput12MHz, MCP2221Driver.Reference2p048, MCP2221Driver.SourceReferenceVDD, 0x08, true, true, MCP2221Driver.Reference1p024, MCP2221Driver.SourceReferenceVDD, 0x04d8, 0x00dd, 0x80, 0x32, &quot;\0\0\0\0\0\0\0\0&quot;, MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation))
+
+julia&gt; response.clockoutputdividervalue
+ClockOutput12MHz::ClockOutputFrequency = 0x02</code></pre><p>To make te change persistent after reboots, one needs to write this into flash memory. This is a bit tedious to do with the low-level API, as you need to re-send all the other parameters affected by the flash writing command you use.</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.GetSRAMSettingsCommand()
+MCP2221Driver.GetSRAMSettingsCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command);
+
+julia&gt; command = MCP2221Driver.WriteFlashDataChipSettingsCommand(
+       response.cdcserialnumberenumerationenable,
+       response.chipconfigurationsecurityoption,
+       response.clockoutputduty,
+       MCP2221Driver.ClockOutput3MHz,
+       response.dacreferencevoltage,
+       response.dacreferenceoption,
+       response.powerupdacvalue,
+       response.interruptdetectionnegativeedge,
+       response.interruptdetectionpositiveedge,
+       response.adcreferencevoltage,
+       response.adcreferenceoption,
+       response.vid,
+       response.pid,
+       response.usbpowerattributes,
+       response.usbrequestednumberofma,
+       &quot;&quot;
+       )
+MCP2221Driver.WriteFlashDataChipSettingsCommand(false, MCP2221Driver.Unsecured, MCP2221Driver.ClockOutputDuty50, MCP2221Driver.ClockOutput3MHz, MCP2221Driver.Reference2p048, MCP2221Driver.SourceReferenceVDD, 0x08, true, true, MCP2221Driver.Reference1p024, MCP2221Driver.SourceReferenceVDD, 0x04d8, 0x00dd, 0x80, 0x32, &quot;&quot;)
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GenericResponse(MCP2221Driver.Success)</code></pre><div class="admonition is-info"><header class="admonition-header">Password protection</header><div class="admonition-body"><p>Please, note that here the device is not password-protected, hence I can supply an empty password as the last parameter of the command. Please refer to the chip manual and the <a href="../reference/#Low-Level-API-Reference">Low-Level API Reference</a> concerning password protection.</p></div></div><p>If you now close the device (<code>close(device)</code>), un-plug and re-plug it, then do:</p><pre><code class="language-julia-repl hljs">julia&gt; device = open(find_device(MCP2221Driver.MCP2221A_DEFAULT_VID, MCP2221Driver.MCP2221A_DEFAULT_PID))
+Vendor/Product ID : 0x04d8 / 0x00dd
+             Path : 1-1:1.2
+          Product : MCP2221 USB-I2C/UART Combo
+    Serial number : 
+     Manufacturer : Microchip Technology Inc.
+
+julia&gt; command = MCP2221Driver.GetSRAMSettingsCommand()
+MCP2221Driver.GetSRAMSettingsCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command);
+
+julia&gt; response.clockoutputdividervalue
+ClockOutput3MHz::ClockOutputFrequency = 0x04
+</code></pre><p>You can see that we have made the change persistent!</p><h2 id="GPIO-Operations"><a class="docs-heading-anchor" href="#GPIO-Operations">GPIO Operations</a><a id="GPIO-Operations-1"></a><a class="docs-heading-anchor-permalink" href="#GPIO-Operations" title="Permalink"></a></h2><p>In this section, we illustrate the use GPIO pins 2 and 3 to write a &quot;blink&quot; program.</p><p>The first step is to configure the two pins as outputs. We will also set their output value to 0. This is done with the <a href="../reference/#MCP2221Driver.SetSRAMSettingsCommand"><code>MCP2221Driver.SetSRAMSettingsCommand</code></a> command. We have to send configuration for all four GP pins, so we first retrieve the configuration for the two other pins.</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.GetSRAMSettingsCommand()
+MCP2221Driver.GetSRAMSettingsCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GetSRAMSettingsResponse(MCP2221Driver.Success, 0x12, 0x04, false, MCP2221Driver.Unsecured, MCP2221Driver.ClockOutputDuty50, MCP2221Driver.ClockOutput3MHz, MCP2221Driver.Reference2p048, MCP2221Driver.SourceReferenceVRM, 0x00, true, true, MCP2221Driver.Reference1p024, MCP2221Driver.SourceReferenceVDD, 0x04d8, 0x00dd, 0x80, 0x32, &quot;\0\0\0\0\0\0\0\0&quot;, MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation))
+
+julia&gt; response.gpio2status
+MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation)
+
+julia&gt; response.gpio3status
+MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation)
+
+julia&gt; command = MCP2221Driver.SetSRAMSettingsCommand(gpiosettings=(gpio0=response.gpio0status, gpio1=response.gpio1status, gpio2=MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation), gpio3=MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation)))
+MCP2221Driver.SetSRAMSettingsCommand(nothing, nothing, nothing, nothing, nothing, nothing, false, (gpio0 = MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0), gpio1 = MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), gpio2 = MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation), gpio3 = MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation)))
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GenericResponse(MCP2221Driver.Success)
+</code></pre><p>We could keep using the same command to make the outputs blink, but we can also make use of the <a href="../reference/#MCP2221Driver.SetGPIOOutputValuesCommand"><code>MCP2221Driver.SetGPIOOutputValuesCommand</code></a> to avoid having to re-send the configuration of the other pins. It is then a simple matter of looping through the values. If you have LEDs connected to GP pins 2 and 3 (don&#39;t forget to put resistors!), the following code will make them blink alternatively for one minute.</p><pre><code class="language-julia-repl hljs">julia&gt; for i in 1:60
+           command = MCP2221Driver.SetGPIOOutputValuesCommand(gp2outputvalue=isodd(i), gp3outputvalue=iseven(i))
+           MCP2221Driver.query(device, command)
+           sleep(1)
+       end
+</code></pre><h2 id="Analog-IO"><a class="docs-heading-anchor" href="#Analog-IO">Analog IO</a><a id="Analog-IO-1"></a><a class="docs-heading-anchor-permalink" href="#Analog-IO" title="Permalink"></a></h2><p>GP pins 2 and 3 are also connected to the Digital-to-Analog Converter (DAC) outputs. This means we can use them tom produce analog tensions. In this section, we will use the DAC to produce a sine wave on GP pin 2 (a &quot;smooth blink&quot;). </p><div class="admonition is-info"><header class="admonition-header">A single DAC per chip</header><div class="admonition-body"><p>The MCP2221A only possesses one DAC, but both GP2 and GP3 can use it. If you configure both pins to use the DAC, they will present the same output.</p></div></div><p>The first step is to configure GP2 to use the DAC. This is pretty similar to what we did in the previous section.</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.GetSRAMSettingsCommand()
+MCP2221Driver.GetSRAMSettingsCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GetSRAMSettingsResponse(MCP2221Driver.Success, 0x12, 0x04, false, MCP2221Driver.Unsecured, MCP2221Driver.ClockOutputDuty50, MCP2221Driver.ClockOutput3MHz, MCP2221Driver.Reference2p048, MCP2221Driver.SourceReferenceVRM, 0x00, true, true, MCP2221Driver.Reference1p024, MCP2221Driver.SourceReferenceVDD, 0x04d8, 0x00dd, 0x80, 0x32, &quot;\0\0\0\0\0\0\0\0&quot;, MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation), MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation))
+
+julia&gt; command = MCP2221Driver.SetSRAMSettingsCommand(gpiosettings=(gpio0=response.gpio0status, gpio1=response.gpio1status, gpio2=MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), gpio3=response.gpio3status))
+MCP2221Driver.SetSRAMSettingsCommand(nothing, nothing, nothing, nothing, nothing, nothing, false, (gpio0 = MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0), gpio1 = MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), gpio2 = MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), gpio3 = MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation)))
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GenericResponse(MCP2221Driver.Success)
+</code></pre><p>The DAC is accessed through <code>AlternateFunction1</code> for GP2. See <a href="../reference/#MCP2221Driver.GPDesignation"><code>MCP2221Driver.GPDesignation</code></a>. All DAC settings are set through <a href="../reference/#MCP2221Driver.SetSRAMSettingsCommand"><code>MCP2221Driver.SetSRAMSettingsCommand</code></a>. First, I will set the DAC to use the internal reference at 4.096V (see also <a href="../reference/#Analog-to-Digital-/-Ditital-to-Analog-conversion">Analog to Digital / Ditital to Analog conversion</a> for options).</p><pre><code class="language-julia-repl hljs">
+julia&gt; command = MCP2221Driver.GetSRAMSettingsCommand()
+MCP2221Driver.GetSRAMSettingsCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GetSRAMSettingsResponse(MCP2221Driver.Success, 0x12, 0x04, false, MCP2221Driver.Unsecured, MCP2221Driver.ClockOutputDuty50, MCP2221Driver.ClockOutput3MHz, MCP2221Driver.Reference2p048, MCP2221Driver.SourceReferenceVRM, 0x00, true, true, MCP2221Driver.Reference1p024, MCP2221Driver.SourceReferenceVDD, 0x04d8, 0x00dd, 0x80, 0x32, &quot;\0\0\0\0\0\0\0\0&quot;, MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation))
+
+julia&gt; response.dacreferencevoltage
+Reference2p048::ReferenceVoltageOption = 0x02
+
+julia&gt; response.dacreferenceoption
+SourceReferenceVRM::SourceReferenceOption = 0
+
+julia&gt; command = MCP2221Driver.SetSRAMSettingsCommand(dacsettings=(referencevoltage=MCP2221Driver.Reference4p096, referenceoption=MCP2221Driver.SourceReferenceVRM))
+MCP2221Driver.SetSRAMSettingsCommand(nothing, (referencevoltage = MCP2221Driver.Reference4p096, referenceoption = MCP2221Driver.SourceReferenceVRM), nothing, nothing, nothing, nothing, false, nothing)
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GenericResponse(MCP2221Driver.Success)
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GetSRAMSettingsResponse(MCP2221Driver.Success, 0x12, 0x04, false, MCP2221Driver.Unsecured, MCP2221Driver.ClockOutputDuty50, MCP2221Driver.ClockOutput3MHz, MCP2221Driver.Reference4p096, MCP2221Driver.SourceReferenceVRM, 0x00, true, true, MCP2221Driver.Reference1p024, MCP2221Driver.SourceReferenceVDD, 0x04d8, 0x00dd, 0x80, 0x32, &quot;\0\0\0\0\0\0\0\0&quot;, MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation))
+
+julia&gt; response.dacreferencevoltage
+Reference4p096::ReferenceVoltageOption = 0x03
+
+julia&gt; response.dacreferenceoption
+SourceReferenceVRM::SourceReferenceOption = 0x01
+</code></pre><p>We can now use the 5-bits DAC to generate a smooth blinking of the LED I have attached to GP2.</p><pre><code class="language-julia-repl hljs">julia&gt; ys = @. round(UInt8, 31*(sin(2π*2*(1:0.1:60))/2 + 1))
+591-element Vector{UInt8}:
+ 0x1f
+ 0x2e
+ 0x28
+ 0x16
+ 0x10
+ 0x1f
+ 0x2e
+ 0x28
+ 0x16
+ 0x10
+    ⋮
+ 0x2e
+ 0x28
+ 0x16
+ 0x10
+ 0x1f
+ 0x2e
+ 0x28
+ 0x16
+ 0x10
+ 0x1f
+
+julia&gt; for y in ys
+           command = MCP2221Driver.SetSRAMSettingsCommand(dacoutputvalue=y)
+           MCP2221Driver.query(device, command)
+           sleep(0.1)
+       end
+</code></pre><h2 id="IC-Operations"><a class="docs-heading-anchor" href="#IC-Operations">I²C Operations</a><a id="IC-Operations-1"></a><a class="docs-heading-anchor-permalink" href="#IC-Operations" title="Permalink"></a></h2><p>The MCP2221A is equiped with an I²C module that we can use to talk to other devices. In this section, we will illustrate these capabilities by communication with a <a href="https://www.ti.com/lit/ds/symlink/tmp117.pdf?ts=1730725070131&amp;ref_url=https%253A%252F%252Fwww.ti.com%252Fproduct%252FTMP117%253Fbm-verify%253DAAQAAAAJ_____yzbLfw2mc6njZE-XlcqneiOyAsS3sUf6UhCOZ2uaq2HZBkFXttQ40xkekAWZy5ilmi2E4tfYrWXd5PTdp9-zyQrP5rWhASO6gV8QNFOrdOY6IA0pNyVg_Wm4WYP_Xei97S7JQ-8YzsfUspNcabrpc3NlDX6TzKZ9eYJ2L100WSoZVWRnXMCsXslO20pJot8HLGrg7zprd84nDBLCbkC6Kbj4JlEXElkX5kxmm4hTLmsAT65py3xsOj5tHbm7D5S14URIIMx0yvSR1A">TMP117 digital thermometer</a> available at address <code>0x48</code>.</p><p>First, we can configure GP2 and GP3 to display the USB configured and USB/I²C traffic inficators respectively.</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.GetSRAMSettingsCommand()
+MCP2221Driver.GetSRAMSettingsCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GetSRAMSettingsResponse(MCP2221Driver.Success, 0x12, 0x04, false, MCP2221Driver.Unsecured, MCP2221Driver.ClockOutputDuty50, MCP2221Driver.ClockOutput3MHz, MCP2221Driver.Reference2p048, MCP2221Driver.SourceReferenceVRM, 0x00, true, true, MCP2221Driver.Reference1p024, MCP2221Driver.SourceReferenceVDD, 0x04d8, 0x00dd, 0x80, 0x32, &quot;\0\0\0\0\0\0\0\0&quot;, MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0), MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation), MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.GPIOOperation))
+
+julia&gt; command = MCP2221Driver.SetSRAMSettingsCommand(gpiosettings=(gpio0=response.gpio0status, gpio1=response.gpio1status, gpio2=MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation), gpio3=MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation)))
+MCP2221Driver.SetSRAMSettingsCommand(nothing, nothing, nothing, nothing, nothing, nothing, false, (gpio0 = MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction0), gpio1 = MCP2221Driver.GPIOStatus(true, MCP2221Driver.GPIOOutput, MCP2221Driver.AlternateFunction1), gpio2 = MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation), gpio3 = MCP2221Driver.GPIOStatus(false, MCP2221Driver.GPIOOutput, MCP2221Driver.DedicatedFunctionOperation)))
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GenericResponse(MCP2221Driver.Success)</code></pre><p>The thermometer is available at address <code>0x48</code>. <code>MCP2221Driver.jl</code> provides the <a href="../reference/#MCP2221Driver.I2CAddress"><code>MCP2221Driver.I2CAddress</code></a> abstraction to represent addresses.</p><pre><code class="language-julia-repl hljs">julia&gt; thermometer_address = MCP2221Driver.I2CAddress(0x48)
+MCP2221Driver.I2CAddress(0x48)</code></pre><p>To read values from the thermometer, you can first write a register address to the pointer register, and then generate a <code>START</code> condition and send the thermometer address byte and the read bit high to initiate the reading. Fortunately, you do not need to know these details of the I²C protocol to perform this. Using the low-level API, you can proceed as follow.</p><p>First, let&#39;s read the last temperature measurement from the <code>Temp_Result</code> register at register address <code>00</code>.  First, we set the pointer register to address <code>00</code>: </p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.I2CWriteDataCommand(thermometer_address, MCP2221Driver.I2CSingle, [0x00])
+MCP2221Driver.I2CWriteDataCommand(MCP2221Driver.I2CAddress(0x48), MCP2221Driver.I2CSingle, UInt8[0x00])
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GenericResponse(MCP2221Driver.Success)
+</code></pre><p>Then, we order the I²C module to read the currently pointed register from the thermometer:</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.I2CReadDataCommand(thermometer_address, MCP2221Driver.I2CSingle, 2)
+
+MCP2221Driver.I2CReadDataCommand(MCP2221Driver.I2CAddress(0x48), MCP2221Driver.I2CSingle, 0x0002)
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GenericResponse(MCP2221Driver.Success)
+</code></pre><p>Finally, we read the value from the driver&#39;s internal memory and convert it to a sensible unit.</p><pre><code class="language-julia-repl hljs">julia&gt; command = MCP2221Driver.GetI2CDataCommand()
+MCP2221Driver.GetI2CDataCommand()
+
+julia&gt; response = MCP2221Driver.query(device, command)
+MCP2221Driver.GetI2CDataResponse(MCP2221Driver.Success, UInt8[0x0c, 0x9e])
+
+julia&gt; temperature = 7.8125e-3 * ntoh(first(reinterpret(UInt16, response.data)))
+25.234375
+
+julia&gt; println(&quot;Temperature is $(temperature)°C.&quot;)
+Temperature is 25.234375°C.
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Low-Level API</a><a class="docs-footer-nextpage" href="../reference/">Low-Level API Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.0 on <span class="colophon-date" title="Wednesday 25 December 2024 17:45">Wednesday 25 December 2024</span>. Using Julia version 1.11.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
