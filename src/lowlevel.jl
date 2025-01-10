@@ -53,12 +53,23 @@ function initarray!(::AbstractCommand, v) end
 
 Build a $(HID_MESSAGE_LENGTH)-long `Vector{UInt8}` from the given `command`.
 """
-function asarray(command)
-    v = zeros(UInt8, HID_MESSAGE_LENGTH)
-    v[1] = commandcode(command)
-    v[2] = subcommandcode(command)
-    initarray!(command, v)
-    return v
+@static if Sys.iswindows()
+    # HIDApi behaves weirdly on windows. I expect bugs for long comands...
+    function asarray(command)
+        v = zeros(UInt8, HID_MESSAGE_LENGTH+1)
+        v[2] = commandcode(command)
+        v[3] = subcommandcode(command)
+	initarray!(command, @view v[2:end])
+	return v[1:end-1]
+    end
+else
+    function asarray(command)
+        v = zeros(UInt8, HID_MESSAGE_LENGTH)
+        v[1] = commandcode(command)
+        v[2] = subcommandcode(command)
+        initarray!(command, v)
+        return v
+    end
 end
 
 """
@@ -214,7 +225,7 @@ StatusSetParametersResponse(v::Vector{UInt8}) = StatusSetParametersResponse(
     (UInt16(v[13]) << 8) | v[12],
     v[14], v[15], v[16],
     (UInt16(v[18]) << 8) | v[17],
-    v[21] & 0x40,
+    (v[21] & 0x40) > 0,
     v[23], v[24], v[25], v[26],
     VersionNumber(v[47], v[48]),
     VersionNumber(v[49], v[50]),
